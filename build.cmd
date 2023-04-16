@@ -1,1 +1,0 @@
-zig build-exe src/main.zig --library SDL2 --library SDL2main --library c -isystem "libs/include" 
