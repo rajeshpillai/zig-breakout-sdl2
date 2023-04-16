@@ -3,6 +3,14 @@ const c = @cImport({
     @cInclude("SDL.h");
 });
 
+
+const WINDOW_WIDTH = 800;
+const WINDOW_HEIGHT = 600;
+const RECT_SIZE = 50;
+const FPS = 60;
+const DELTA_TIME_SEC: f32 = 1.0 / @intToFloat(f32, FPS);
+const RECT_SPEED: f32 = 400;
+
 pub fn main() !void {
      if (c.SDL_Init(c.SDL_INIT_VIDEO) != 0) {
         c.SDL_Log("Unable to initialize SDL: %s", c.SDL_GetError());
@@ -10,13 +18,6 @@ pub fn main() !void {
     }
     defer c.SDL_Quit();
 
-    const RECT_SIZE = 50;
-    const FPS = 60;
-    const WINDOW_WIDTH = 800;
-    const WINDOW_HEIGHT = 600;
-
-    const DELTA_TIME_SEC: f32 = 1.0 / @intToFloat(f32, FPS);
-    const RECT_SPEED: f32 = 400;
 
     var window = c.SDL_CreateWindow("Breakout Game", c.SDL_WINDOWPOS_CENTERED, c.SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     defer c.SDL_DestroyWindow(window);
@@ -28,13 +29,8 @@ pub fn main() !void {
     defer c.SDL_DestroyRenderer(renderer);
 
     var quit = false;
-
-
-
-
     var x: f32 = 100;
     var y: f32 = 100;
-
     var dx:f32 = 1;
     var dy:f32 = 1;
 
@@ -85,9 +81,5 @@ pub fn main() !void {
         c.SDL_Delay(1000 / FPS);
 
     }
-
-
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
 }
 
