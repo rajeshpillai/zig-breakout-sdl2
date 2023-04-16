@@ -53,10 +53,18 @@ pub fn main() !void {
                 c.SDL_QUIT => {
                     quit = true;
                 },
+                c.SDL_KEYDOWN => {
+                    if (event.key.keysym.sym == c.SDLK_LEFT) {
+                        bar_x -= 10;
+                    } else if (event.key.keysym.sym == c.SDLK_RIGHT) {
+                        bar_x += 10;
+                    } else if (event.key.keysym.sym == c.SDLK_ESCAPE) {
+                        quit = true;
+                    }
+                },
                 else => {},
             }
         }
-
         
         _ = c.SDL_SetRenderDrawColor(renderer, 0x18, 0x18, 0x18, 0xFF);
         _ = c.SDL_RenderClear(renderer);
