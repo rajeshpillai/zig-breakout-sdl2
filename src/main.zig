@@ -73,6 +73,13 @@ fn update(dt: f32)  void  {
         
         proj_x = proj_nx;
         proj_y = proj_ny;
+        // Detect bar and proj collision
+        if (proj_y + PROJ_SIZE > BAR_Y - BAR_THICKNESS / 2 and proj_y + PROJ_SIZE < BAR_Y + BAR_THICKNESS / 2) {
+            if (proj_x + PROJ_SIZE > bar_x and proj_x < bar_x + BAR_LEN) {
+                proj_dy *= -1;
+                proj_ny = proj_y + proj_dy * PROJ_SPEED * dt;
+            }
+        }
     }
 }
 
