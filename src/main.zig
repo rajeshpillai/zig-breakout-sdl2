@@ -10,7 +10,15 @@ pub fn main() !void {
     }
     defer c.SDL_Quit();
 
-    var window = c.SDL_CreateWindow("Breakout Game", c.SDL_WINDOWPOS_CENTERED, c.SDL_WINDOWPOS_CENTERED, 640, 400, 0);
+    const RECT_SIZE = 50;
+    const FPS = 60;
+    const WINDOW_WIDTH = 800;
+    const WINDOW_HEIGHT = 600;
+
+    const DELTA_TIME_SEC: f32 = 1.0 / @intToFloat(f32, FPS);
+    const RECT_SPEED: f32 = 400;
+
+    var window = c.SDL_CreateWindow("Breakout Game", c.SDL_WINDOWPOS_CENTERED, c.SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     defer c.SDL_DestroyWindow(window);
 
     var renderer = c.SDL_CreateRenderer(window, 0, c.SDL_RENDERER_PRESENTVSYNC) orelse {
@@ -21,13 +29,11 @@ pub fn main() !void {
 
     var quit = false;
 
-    const FPS = 60;
 
-    const DELTA_TIME_SEC: f32 = 1.0 / @intToFloat(f32, FPS);
-    const SPEED: f32 = 100;
 
-    var x: f32 = 0;
-    var y: f32 = 0;
+
+    var x: f32 = 100;
+    var y: f32 = 100;
 
     var dx:f32 = 1;
     var dy:f32 = 1;
@@ -47,15 +53,29 @@ pub fn main() !void {
         _ = c.SDL_SetRenderDrawColor(renderer, 0x18, 0x18, 0x18, 0xFF);
         _ = c.SDL_RenderClear(renderer);
         
+        var nx = x + dx * RECT_SPEED * DELTA_TIME_SEC;
 
-        x += dx * SPEED * DELTA_TIME_SEC;
-        y += dy * SPEED * DELTA_TIME_SEC;
+        if (nx < 0 or nx + RECT_SIZE > WINDOW_WIDTH) {
+            dx *= -1;
+            nx = x + dx * RECT_SPEED * DELTA_TIME_SEC;
+        }
+
+        var ny = y + dy * RECT_SPEED * DELTA_TIME_SEC;
+
+        if (ny < 0 or ny + RECT_SIZE > WINDOW_HEIGHT) {
+            dy *= -1;
+            ny = y + dy * RECT_SPEED * DELTA_TIME_SEC;
+        }
+
+        x = nx;
+        y = ny;
+        
 
         const rect = c.SDL_Rect {
             .x = @floatToInt(i32, x),
             .y = @floatToInt(i32, y),
-            .w = 100,
-            .h = 100
+            .w = RECT_SIZE,
+            .h = RECT_SIZE
         };
 
         _ = c.SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0xFF);
@@ -63,7 +83,7 @@ pub fn main() !void {
         
         c.SDL_RenderPresent(renderer);
         c.SDL_Delay(1000 / FPS);
-        
+
     }
 
 
