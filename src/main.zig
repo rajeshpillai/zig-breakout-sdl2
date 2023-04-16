@@ -14,7 +14,7 @@ const PROJ_SIZE: f32 = 25*0.80;
 const PROJ_SPEED: f32 = 350;
 const PROJ_COLOR = 0xFFFFFFFF;
 const BAR_LEN: f32 = 100;
-const BAR_THICCNESS: f32 = PROJ_SIZE;
+const BAR_THICKNESS: f32 = PROJ_SIZE;
 const BAR_Y: f32 = WINDOW_HEIGHT - PROJ_SIZE - 50;
 const BAR_SPEED: f32 = PROJ_SPEED*1.5;
 const BAR_COLOR = 0xFF3030FF;
@@ -54,7 +54,7 @@ var targets_pool = init_targets();
 var bar_x:   f32 = WINDOW_WIDTH/2 - BAR_LEN/2;
 var bar_dx:  f32 = 0;
 var proj_x:  f32 = WINDOW_WIDTH/2 - PROJ_SIZE/2;
-var proj_y:  f32 = BAR_Y - BAR_THICCNESS/2 - PROJ_SIZE;
+var proj_y:  f32 = BAR_Y - BAR_THICKNESS/2 - PROJ_SIZE;
 var proj_dx: f32 = 1;
 var proj_dy: f32 = 1;
 var quit = false;
@@ -90,7 +90,7 @@ fn proj_rect(x: f32, y: f32) c.SDL_Rect {
 }
 
 fn bar_rect(x: f32) c.SDL_Rect {
-    return make_rect(x, BAR_Y - BAR_THICCNESS/2, BAR_LEN, BAR_THICCNESS);
+    return make_rect(x, BAR_Y - BAR_THICKNESS/2, BAR_LEN, BAR_THICKNESS);
 }
 
 fn horz_collision(dt: f32) void {
@@ -139,7 +139,7 @@ fn bar_collision(dt: f32) void {
 fn update(dt: f32) void {
     if (!pause and started) {
         if (overlaps(&proj_rect(proj_x, proj_y), &bar_rect(bar_x)) != 0) {
-            proj_y = BAR_Y - BAR_THICCNESS/2 - PROJ_SIZE - 1.0;
+            proj_y = BAR_Y - BAR_THICKNESS/2 - PROJ_SIZE - 1.0;
             return;
         }
         bar_collision(dt);
