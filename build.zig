@@ -14,6 +14,14 @@ pub fn build(b: *std.build.Builder) void {
     const exe = b.addExecutable("zig-breakout-sdl2", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
+    
+    // SLD
+    const sdl_path = "d:\\libs\\SDL2-2.26.4\\";
+    exe.addIncludePath(sdl_path ++ "include");
+    exe.addLibraryPath(sdl_path ++ "lib\\x64");
+    b.installBinFile(sdl_path ++ "lib\\x64\\SDL2.dll", "SDL2.dll");
+    exe.linkSystemLibrary("SDL2");
+    exe.linkLibC();
     exe.install();
 
     const run_cmd = exe.run();
