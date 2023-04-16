@@ -4,16 +4,17 @@ const c = @cImport({
 });
 
 
-const WINDOW_WIDTH = 800;
-const WINDOW_HEIGHT = 600;
-const PROJ_SIZE = 50;
+const FPS: comptime_int = 60;
+const WINDOW_WIDTH: comptime_int  = 800;
+const WINDOW_HEIGHT: comptime_int = 600;
+const PROJ_SIZE = 25;
 const PROJ_SPEED: f32 = 400;
-const FPS = 60;
 const DELTA_TIME_SEC: f32 = 1.0 / @intToFloat(f32, FPS);
 
 const BAR_LEN = 100;
-const BAR_THICKNESS: f32 = 10;
+const BAR_THICKNESS: f32 = PROJ_SIZE;
 const BAR_Y: f32 = WINDOW_HEIGHT - BAR_THICKNESS - 100;
+const BAR_SPEED: f32 = PROJ_SPEED;
 
 const Point = struct {
     proj_x: f32,
@@ -37,14 +38,19 @@ pub fn main() !void {
     };
     defer c.SDL_DestroyRenderer(renderer);
 
+    const keyboard = c.SDL_GetKeyboardState(null);
+
     var quit = false;
 
     var proj_x: f32 = 100;
     var proj_y: f32 = 100;
-    var dx:f32 = 1;
-    var dy:f32 = 1;
+    var proj_dx:f32 = 1;
+    var proj_dy:f32 = 1;
 
     var bar_x: f32 = 100;
+    var bar_dx: f32 = 0;
+
+    var pause = false;
 
     while (!quit) {
         var event: c.SDL_Event = undefined;
@@ -54,37 +60,55 @@ pub fn main() !void {
                     quit = true;
                 },
                 c.SDL_KEYDOWN => {
-                    if (event.key.keysym.sym == c.SDLK_LEFT) {
-                        bar_x -= 10;
-                    } else if (event.key.keysym.sym == c.SDLK_RIGHT) {
-                        bar_x += 10;
-                    } else if (event.key.keysym.sym == c.SDLK_ESCAPE) {
-                        quit = true;
+                    switch(event.key.keysym.sym) {
+                        ' ' => { pause = !pause; },
+                        'a' => { bar_x -= 10; },
+                        'd' => { bar_x += 10; },
+                        27 => { // QUIT ESC
+                            quit = true;
+                        },
+                        else => {},
                     }
+                    
                 },
                 else => {},
             }
         }
+
+        bar_dx = 0;
+        if(keyboard[c.SDL_SCANCODE_A] != 0) {
+            bar_x -= 1;
+        } 
         
+        if (keyboard[c.SDL_SCANCODE_D] != 0) {
+            bar_x += 1;
+        }
+        
+
+        if (!pause) {
+            bar_x += bar_dx *  BAR_SPEED * DELTA_TIME_SEC;
+            
+            var proj_nx = proj_x + proj_dx * PROJ_SPEED * DELTA_TIME_SEC;
+
+            if (proj_nx < 0 or proj_nx + PROJ_SIZE > WINDOW_WIDTH) {
+                proj_dx *= -1;
+                proj_nx = proj_x + proj_dx * PROJ_SPEED * DELTA_TIME_SEC;
+            }
+
+            var proj_ny = proj_y + proj_dy * PROJ_SPEED * DELTA_TIME_SEC;
+
+            if (proj_ny < 0 or proj_ny + PROJ_SIZE > WINDOW_HEIGHT) {
+                proj_dy *= -1;
+                proj_ny = proj_y + proj_dy * PROJ_SPEED * DELTA_TIME_SEC;
+            }
+            
+            proj_x = proj_nx;
+            proj_y = proj_ny;
+        }
+
+
         _ = c.SDL_SetRenderDrawColor(renderer, 0x18, 0x18, 0x18, 0xFF);
         _ = c.SDL_RenderClear(renderer);
-        
-        var proj_nx = proj_x + dx * PROJ_SPEED * DELTA_TIME_SEC;
-
-        if (proj_nx < 0 or proj_nx + PROJ_SIZE > WINDOW_WIDTH) {
-            dx *= -1;
-            proj_nx = proj_x + dx * PROJ_SPEED * DELTA_TIME_SEC;
-        }
-
-        var proj_ny = proj_y + dy * PROJ_SPEED * DELTA_TIME_SEC;
-
-        if (proj_ny < 0 or proj_ny + PROJ_SIZE > WINDOW_HEIGHT) {
-            dy *= -1;
-            proj_ny = proj_y + dy * PROJ_SPEED * DELTA_TIME_SEC;
-        }
-
-        proj_x = proj_nx;
-        proj_y = proj_ny;
         
 
         _ = c.SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -101,9 +125,9 @@ pub fn main() !void {
         _ = c.SDL_SetRenderDrawColor(renderer, 0xFF, 0, 0, 0xFF);
         const bar_rect = c.SDL_Rect {
             .x = @floatToInt(i32, bar_x),
-            .y = BAR_Y - BAR_THICKNESS / 2,
-            .w = BAR_LEN,
-            .h = BAR_THICKNESS
+            .y = @floatToInt(i32, BAR_Y - BAR_THICKNESS / 2),
+            .w = @floatToInt(i32, BAR_LEN),
+            .h = @floatToInt(i32, BAR_THICKNESS)
         };
 
         _ = c.SDL_RenderFillRect(renderer, &bar_rect);
